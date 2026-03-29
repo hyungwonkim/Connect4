@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "connect4"
+version = "0.1.0"
+description = "Connect 4 game engine with AI players"
+requires-python = ">=3.9"
+dependencies = ["torch>=2.0", "numpy>=1.24", "pygame>=2.0", "tensorboard>=2.14"]
+
+[project.scripts]
+connect4 = "main:main"
+
+[tool.setuptools.packages.find]
+include = ["connect4*"]
+
+[tool.pytest.ini_options]
+testpaths = ["connect4"]
+python_files = ["*_test.py"]

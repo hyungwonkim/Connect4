@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect 4 - AI Game Engine</title>
+    <style>
+        :root {
+            --blue: #1a56db;
+            --red: #dc2626;
+            --yellow: #eab308;
+            --dark: #111827;
+            --gray: #6b7280;
+            --light: #f9fafb;
+            --code-bg: #1e293b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--dark);
+            line-height: 1.7;
+            background: var(--light);
+        }
+
+        /* Hero */
+        .hero {
+            background: linear-gradient(135deg, var(--blue) 0%, #1e3a8a 100%);
+            color: white;
+            padding: 80px 20px 60px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            max-width: 640px;
+            margin: 0 auto 32px;
+        }
+
+        .board-visual {
+            display: inline-grid;
+            grid-template-columns: repeat(7, 40px);
+            grid-template-rows: repeat(6, 40px);
+            gap: 6px;
+            background: var(--blue);
+            padding: 12px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            margin-bottom: 32px;
+        }
+
+        .cell {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e5e7eb;
+        }
+
+        .cell.red { background: var(--red); }
+        .cell.yellow { background: var(--yellow); }
+
+        /* Container */
+        .container {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Sections */
+        section {
+            padding: 64px 0;
+        }
+
+        section + section {
+            border-top: 1px solid #e5e7eb;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: var(--dark);
+        }
+
+        h3 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin: 24px 0 8px;
+        }
+
+        p, li {
+            color: #374151;
+            margin-bottom: 12px;
+        }
+
+        ul, ol {
+            padding-left: 24px;
+        }
+
+        /* Code blocks */
+        pre {
+            background: var(--code-bg);
+            color: #e2e8f0;
+            padding: 20px 24px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 16px 0 24px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        code {
+            font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+        }
+
+        p code {
+            background: #e5e7eb;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.88em;
+            color: var(--dark);
+        }
+
+        /* Player cards */
+        .player-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 640px) {
+            .player-grid { grid-template-columns: 1fr; }
+            .hero h1 { font-size: 2rem; }
+            .board-visual { grid-template-columns: repeat(7, 30px); grid-template-rows: repeat(6, 30px); }
+            .cell { width: 30px; height: 30px; }
+        }
+
+        .player-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 20px;
+            background: white;
+        }
+
+        .player-card h3 {
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .badge {
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 12px;
+            text-transform: uppercase;
+        }
+
+        .badge-rule { background: #dbeafe; color: #1e40af; }
+        .badge-rl { background: #fef3c7; color: #92400e; }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0 24px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 10px 14px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            font-weight: 600;
+            background: #f3f4f6;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray);
+            font-size: 0.9rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        footer a { color: var(--blue); text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<!-- Hero -->
+<header class="hero">
+    <div class="board-visual" aria-hidden="true">
+        <!-- Row 1 (top) -->
+        <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+        <!-- Row 2 -->
+        <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+        <!-- Row 3 -->
+        <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell yellow"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+        <!-- Row 4 -->
+        <div class="cell"></div><div class="cell"></div><div class="cell red"></div><div class="cell yellow"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+        <!-- Row 5 -->
+        <div class="cell"></div><div class="cell red"></div><div class="cell yellow"></div><div class="cell red"></div><div class="cell yellow"></div><div class="cell"></div><div class="cell"></div>
+        <!-- Row 6 (bottom) -->
+        <div class="cell red"></div><div class="cell yellow"></div><div class="cell red"></div><div class="cell yellow"></div><div class="cell red"></div><div class="cell yellow"></div><div class="cell"></div>
+    </div>
+    <h1>Connect 4</h1>
+    <p>A Python game engine with rule-based and reinforcement-learning AI opponents. Play in the terminal, Pygame GUI, or web browser.</p>
+</header>
+
+<main class="container">
+
+    <!-- What is Connect 4 -->
+    <section>
+        <h2>What is Connect 4?</h2>
+        <p>
+            Connect 4 is a two-player strategy game played on a vertical 6-row by 7-column grid.
+            Players take turns dropping colored discs into columns. The disc falls to the lowest available
+            slot in that column. The first player to form an unbroken line of four discs &mdash;
+            horizontally, vertically, or diagonally &mdash; wins. If the board fills up with no winner,
+            the game is a draw.
+        </p>
+        <p>
+            Despite its simple rules, Connect 4 has deep strategic complexity. The game was
+            <a href="https://en.wikipedia.org/wiki/Connect_Four#Mathematical_solution" target="_blank" rel="noopener">mathematically solved</a>
+            in 1988: the first player can always force a win with perfect play. This makes it an
+            excellent testbed for AI techniques ranging from simple heuristics to deep reinforcement learning.
+        </p>
+    </section>
+
+    <!-- Opponent Players -->
+    <section>
+        <h2>Choose Your Opponent</h2>
+        <p>The game ships with six AI opponents of increasing sophistication, plus human-vs-human mode.</p>
+
+        <div class="player-grid">
+            <div class="player-card">
+                <h3>Random <span class="badge badge-rule">Rule-based</span></h3>
+                <p>Picks a valid column uniformly at random. A useful baseline &mdash; any competent player should beat it consistently.</p>
+            </div>
+            <div class="player-card">
+                <h3>Greedy <span class="badge badge-rule">Rule-based</span></h3>
+                <p>Wins immediately if possible, blocks the opponent's winning move otherwise, and falls back to random. Simple but surprisingly effective.</p>
+            </div>
+            <div class="player-card">
+                <h3>Epsilon-Greedy <span class="badge badge-rule">Rule-based</span></h3>
+                <p>Plays the Greedy strategy most of the time but explores a random move with probability &epsilon; (default 0.1). Adds unpredictability.</p>
+            </div>
+            <div class="player-card">
+                <h3>DQN <span class="badge badge-rl">RL-trained</span></h3>
+                <p>Deep Q-Network. Learns a value function over board states through experience replay and a target network. Fast single-pass inference.</p>
+            </div>
+            <div class="player-card">
+                <h3>PPO <span class="badge badge-rl">RL-trained</span></h3>
+                <p>Proximal Policy Optimization. Directly learns a stochastic policy using clipped surrogate objectives and a policy pool for opponent diversity.</p>
+            </div>
+            <div class="player-card">
+                <h3>AlphaZero <span class="badge badge-rl">RL-trained</span></h3>
+                <p>Self-play with Monte Carlo Tree Search guided by a neural network that predicts both policy and value. The strongest AI in this project.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- How to Play -->
+    <section>
+        <h2>How to Play</h2>
+
+        <h3>Installation</h3>
+<pre><code>git clone https://github.com/hyungwonkim/Connect4.git
+cd Connect4
+pip install -e .</code></pre>
+
+        <h3>CLI Mode</h3>
+        <p>Play directly in your terminal. On each turn, enter a column number (0&ndash;6) to drop your piece.</p>
+<pre><code># Human vs Human
+python main.py
+
+# Human vs AI opponent
+python main.py --player2 greedy
+python main.py --player2 dqn
+python main.py --player2 alphazero
+
+# With a specific checkpoint
+python main.py --player2 alphazero --checkpoint checkpoints/alphazero/best.pt</code></pre>
+
+        <p>Available <code>--player2</code> options:</p>
+        <table>
+            <tr><th>Flag</th><th>Opponent</th></tr>
+            <tr><td><code>human</code></td><td>Human (default)</td></tr>
+            <tr><td><code>random</code></td><td>Random player</td></tr>
+            <tr><td><code>greedy</code></td><td>Greedy player</td></tr>
+            <tr><td><code>epsilon_greedy</code></td><td>Epsilon-Greedy player</td></tr>
+            <tr><td><code>dqn</code></td><td>DQN (requires checkpoint)</td></tr>
+            <tr><td><code>ppo</code></td><td>PPO (requires checkpoint)</td></tr>
+            <tr><td><code>alphazero</code></td><td>AlphaZero (requires checkpoint)</td></tr>
+        </table>
+
+        <h3>Pygame GUI</h3>
+        <p>Launch the graphical interface with animated piece drops and a start screen to select your opponent.</p>
+<pre><code>python main.py --gui</code></pre>
+
+        <h3>Web App</h3>
+        <p>Run the FastAPI backend and open the browser-based frontend.</p>
+<pre><code># Start the server (default: http://localhost:8000)
+uvicorn server.api:app --reload</code></pre>
+    </section>
+
+    <!-- Training -->
+    <section>
+        <h2>Training the RL Players</h2>
+        <p>
+            Each RL player can be trained from scratch on your own machine. Training requires
+            <a href="https://pytorch.org/" target="_blank" rel="noopener">PyTorch</a> and benefits from a GPU, but
+            CPU training works for smaller runs. Trained checkpoints are saved to <code>checkpoints/</code>.
+        </p>
+
+        <h3>DQN</h3>
+<pre><code>python -m connect4.training.train_dqn</code></pre>
+        <p>
+            Trains a Deep Q-Network using experience replay, a target network, and epsilon-greedy exploration.
+            Checkpoints are saved to <code>checkpoints/dqn/</code>. Monitor with TensorBoard:
+        </p>
+<pre><code>tensorboard --logdir runs/</code></pre>
+
+        <h3>PPO</h3>
+<pre><code>python -m connect4.training.train_ppo</code></pre>
+        <p>
+            Trains a policy network using Proximal Policy Optimization with a policy pool for
+            opponent diversity. Checkpoints are saved to <code>checkpoints/ppo/</code>.
+        </p>
+
+        <h3>AlphaZero</h3>
+<pre><code>python -m connect4.training.train_alphazero</code></pre>
+        <p>
+            Runs iterative self-play with MCTS to generate training data, then updates the neural
+            network. Each iteration evaluates the new model against the previous best and promotes
+            it if it wins. Checkpoints are saved to <code>checkpoints/alphazero/</code>.
+        </p>
+
+        <h3>Evaluating Agents</h3>
+<pre><code>python -m connect4.training.evaluate</code></pre>
+        <p>
+            Runs a round-robin tournament between all agents (rule-based and RL) and prints a
+            win-rate matrix. Use <code>--num-games</code> to control sample size.
+        </p>
+    </section>
+
+    <!-- Project Structure -->
+    <section>
+        <h2>Project Structure</h2>
+<pre><code>Connect4/
+  main.py                          # Entry point (CLI, GUI, web)
+  connect4/
+    board.py                       # Board class (6x7 grid, win detection)
+    game.py                        # Game loop and turn management
+    players/
+      base.py                      # Abstract BasePlayer interface
+      human.py                     # CLI human input
+      random_player.py             # Random move selection
+      greedy_player.py             # Win/block/random heuristic
+      epsilon_greedy_player.py     # Greedy + exploration
+      rl/
+        networks.py                # DQNNet, PPONet, AlphaZeroNet
+        common.py                  # Board encoding, masking utilities
+        self_play_env.py           # Self-play environment wrapper
+        dqn/dqn_player.py          # DQN inference player
+        ppo/ppo_player.py          # PPO inference player
+        alphazero/
+          alphazero_player.py      # AlphaZero inference player
+          mcts.py                  # Monte Carlo Tree Search
+    training/
+      train_dqn.py                 # DQN training script
+      train_ppo.py                 # PPO training script
+      train_alphazero.py           # AlphaZero training script
+      evaluate.py                  # Agent evaluation tournament
+    gui/
+      pygame_gui.py                # Pygame graphical interface
+  server/
+    api.py                         # FastAPI backend
+  frontend/
+    index.html                     # Web frontend</code></pre>
+    </section>
+
+</main>
+
+<footer>
+    <p>Connect 4 AI Game Engine &mdash; Built with Python, PyTorch, and Pygame</p>
+    <p><a href="https://github.com/hyungwonkim/Connect4">View on GitHub</a></p>
+</footer>
+
+</body>
+</html>
