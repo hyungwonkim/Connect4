@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-import copy
 from typing import Optional
+
+import numpy as np
 
 ROWS = 6
 COLS = 7
@@ -12,7 +13,7 @@ P2 = 2
 
 class Board:
     def __init__(self):
-        self.grid = [[EMPTY] * COLS for _ in range(ROWS)]
+        self.grid = np.zeros((ROWS, COLS), dtype=np.int8)
 
     def is_valid_move(self, col: int) -> bool:
         return 0 <= col < COLS and self.grid[0][col] == EMPTY
@@ -53,7 +54,9 @@ class Board:
         return self.check_winner() is None and len(self.get_valid_moves()) == 0
 
     def copy(self) -> "Board":
-        return copy.deepcopy(self)
+        new_board = Board.__new__(Board)
+        new_board.grid = self.grid.copy()
+        return new_board
 
     def __str__(self) -> str:
         symbols = {EMPTY: ".", P1: "X", P2: "O"}

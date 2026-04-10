@@ -3,13 +3,13 @@
 import torch
 
 from connect4.board import Board, P1, P2
-from connect4.players.rl.networks import AlphaZeroNet
+from connect4.players.rl.networks import AlphaZeroNetV2
 from connect4.players.rl.alphazero.mcts import MCTS
 
 
 def _make_mcts(num_simulations=50):
     """Create MCTS with a fresh (untrained) network on CPU."""
-    net = AlphaZeroNet()
+    net = AlphaZeroNetV2()
     net.eval()
     return MCTS(net, num_simulations=num_simulations, c_puct=1.41)
 

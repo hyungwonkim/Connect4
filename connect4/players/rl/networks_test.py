@@ -2,11 +2,11 @@
 
 import torch
 
-from connect4.players.rl.networks import AlphaZeroNet, PPONet, DQNNet
+from connect4.players.rl.networks import AlphaZeroNetV2, PPONet, DQNNet
 
 
 def test_alphazero_net_output_shapes():
-    net = AlphaZeroNet()
+    net = AlphaZeroNetV2()
     x = torch.randn(2, 3, 6, 7)  # batch of 2
     log_policy, value = net(x)
     assert log_policy.shape == (2, 7)
@@ -14,7 +14,7 @@ def test_alphazero_net_output_shapes():
 
 
 def test_alphazero_net_value_range():
-    net = AlphaZeroNet()
+    net = AlphaZeroNetV2()
     x = torch.randn(4, 3, 6, 7)
     _, value = net(x)
     # tanh output should be in [-1, 1]
@@ -23,7 +23,7 @@ def test_alphazero_net_value_range():
 
 
 def test_alphazero_net_log_policy():
-    net = AlphaZeroNet()
+    net = AlphaZeroNetV2()
     x = torch.randn(1, 3, 6, 7)
     log_policy, _ = net(x)
     # exp(log_softmax) should sum to ~1
@@ -40,6 +40,7 @@ def test_ppo_net_output_shapes():
 
 
 def test_dqn_net_output_shapes():
+    """DQNNet is a Dueling architecture: V(s) + A(s,a) streams."""
     net = DQNNet()
     x = torch.randn(2, 3, 6, 7)
     q_values = net(x)

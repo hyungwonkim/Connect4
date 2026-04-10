@@ -94,7 +94,7 @@ def test_clone():
 
     cloned = env.clone()
     assert cloned.current_player == env.current_player
-    assert cloned.board.grid == env.board.grid
+    assert (cloned.board.grid == env.board.grid).all()
 
     # Modifying clone shouldn't affect original
     cloned.step(4)

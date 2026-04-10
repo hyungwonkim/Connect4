@@ -5,7 +5,7 @@ import torch
 from connect4.board import Board
 from connect4.players.base import BasePlayer
 from connect4.players.rl.common import get_device
-from connect4.players.rl.networks import AlphaZeroNet
+from connect4.players.rl.networks import AlphaZeroNetV2
 from connect4.players.rl.alphazero.mcts import MCTS
 
 
@@ -16,7 +16,7 @@ class AlphaZeroPlayer(BasePlayer):
         self,
         player_id: int,
         checkpoint_path: str = "checkpoints/alphazero/best.pt",
-        num_simulations: int = 200,
+        num_simulations: int = 400,
         c_puct: float = 1.41,
     ):
         self.player_id = player_id
@@ -25,7 +25,7 @@ class AlphaZeroPlayer(BasePlayer):
         self.c_puct = c_puct
         self.device = get_device()
 
-        self.network = AlphaZeroNet().to(self.device)
+        self.network = AlphaZeroNetV2(channels=96, num_blocks=5).to(self.device)
         self._has_checkpoint = self._load_checkpoint()
         self.network.eval()
         self.mcts = MCTS(self.network, num_simulations, c_puct)

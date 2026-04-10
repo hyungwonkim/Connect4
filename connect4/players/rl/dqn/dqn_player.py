@@ -1,4 +1,4 @@
-"""DQN player — inference wrapper."""
+"""DQN player — inference wrapper using the Dueling architecture."""
 
 import torch
 
@@ -9,7 +9,7 @@ from connect4.players.rl.networks import DQNNet
 
 
 class DQNPlayer(BasePlayer):
-    """Plays Connect 4 using a trained DQN Q-network."""
+    """Plays Connect 4 using a trained Dueling-DQN Q-network."""
 
     def __init__(
         self,
@@ -26,7 +26,9 @@ class DQNPlayer(BasePlayer):
 
     def _load_checkpoint(self) -> bool:
         try:
-            state_dict = torch.load(self.checkpoint_path, map_location=self.device, weights_only=True)
+            state_dict = torch.load(
+                self.checkpoint_path, map_location=self.device, weights_only=True,
+            )
             self.network.load_state_dict(state_dict)
             return True
         except (FileNotFoundError, RuntimeError):

@@ -1,5 +1,6 @@
 """Shared utilities for RL players."""
 
+import numpy as np
 import torch
 
 from connect4.board import Board, ROWS, COLS, P1, P2
@@ -13,15 +14,10 @@ def board_to_tensor(board: Board, current_player: int) -> torch.Tensor:
     Plane 2: valid-move indicator (1 in top row of each playable column)
     """
     opponent = P2 if current_player == P1 else P1
+    grid = board.grid
     tensor = torch.zeros(3, ROWS, COLS, dtype=torch.float32)
-
-    for r in range(ROWS):
-        for c in range(COLS):
-            cell = board.grid[r][c]
-            if cell == current_player:
-                tensor[0, r, c] = 1.0
-            elif cell == opponent:
-                tensor[1, r, c] = 1.0
+    tensor[0] = torch.from_numpy((grid == current_player).astype(np.float32))
+    tensor[1] = torch.from_numpy((grid == opponent).astype(np.float32))
 
     for c in board.get_valid_moves():
         tensor[2, 0, c] = 1.0

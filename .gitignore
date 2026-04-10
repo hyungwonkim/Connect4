@@ -1,4 +1,7 @@
-checkpoints/
+checkpoints/**
+!checkpoints/
+!checkpoints/*/
+!checkpoints/*/best.pt
 __pycache__/
 *.pyc
 *.egg-info/

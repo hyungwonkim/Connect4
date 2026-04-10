@@ -26,7 +26,9 @@ class PPOPlayer(BasePlayer):
 
     def _load_checkpoint(self) -> bool:
         try:
-            state_dict = torch.load(self.checkpoint_path, map_location=self.device, weights_only=True)
+            state_dict = torch.load(
+                self.checkpoint_path, map_location=self.device, weights_only=True,
+            )
             self.network.load_state_dict(state_dict)
             return True
         except (FileNotFoundError, RuntimeError):
