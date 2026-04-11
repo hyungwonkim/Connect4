@@ -2,6 +2,14 @@
 
 A Connect 4 game engine with rule-based and RL-trained AI opponents.
 
+## Play in your browser
+
+No install required — play against all three RL agents (DQN, PPO, AlphaZero with in-browser MCTS) at
+**[hyungwonkim.github.io/Connect4/play/](https://hyungwonkim.github.io/Connect4/play/)**.
+
+The web build is a static Vite + TypeScript app under `web/`, with the Python networks exported to
+ONNX and run via `onnxruntime-web`. See `web/README.md` for local dev instructions.
+
 ## Quick Start
 
 ```bash

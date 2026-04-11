@@ -198,6 +198,21 @@
 
         footer a { color: var(--blue); text-decoration: none; }
         footer a:hover { text-decoration: underline; }
+
+        .play-cta {
+            display: inline-block;
+            margin-top: 16px;
+            padding: 14px 32px;
+            background: var(--yellow);
+            color: var(--dark);
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1.05rem;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+            transition: transform 0.08s ease, filter 0.12s;
+        }
+        .play-cta:hover { filter: brightness(1.08); transform: translateY(-1px); }
     </style>
 </head>
 <body>
@@ -220,6 +235,7 @@
     </div>
     <h1>Connect 4</h1>
     <p>A Python game engine with rule-based and reinforcement-learning AI opponents. Play in the terminal, Pygame GUI, or web browser.</p>
+    <p><a href="./play/" class="play-cta">▶ Play in your browser</a></p>
 </header>
 
 <main class="container">
